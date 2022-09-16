@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    var obj = {
+      name: 'obj',
+      age: 28
+    }
+    var name = 'win'
+    var age = '28'
+    function fn() {
+      console.log(this.name, arguments)
+    }
+
+    Function.prototype.call2 = function(_this) {
+      _this = _this ? _this : window
+      let args = [...arguments].splice(1)
+      _this.fn = this
+      _this.fn(...args)
+      delete _this['fn']
+    }
+
+    fn.call(null, 1,2,3)
+    fn.call2(null, 1,2,3)
+
+    fn.call(obj, 1,2,3)
+    fn.call2(obj, 1,2,3)
+
+
+    Function.prototype.bind2 = function(_this) {
+      let args = [...arguments].splice(1)
+      let fn = this
+      return function () {
+        fn.call(_this, ...args)
+      }
+    }
+  </script>
+</body>
+</html>

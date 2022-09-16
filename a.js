@@ -1,0 +1,187 @@
+/* promise是异步操作，执行顺序会在同步执行完之后在执行，
+在这期间then里面的函数已经被收集到了promise对象里面
+这个过程就是res()执行以后，触发then收集到的函数并执行 */
+
+
+class KPromise {
+
+  static pending = 'pending';
+  static resolved = 'resolved';
+  static rejected = 'rejected';
+
+  static resolve(val){
+    return new KPromise((res, rej)=>{
+      res(val)
+    })
+  }
+
+  static reject(val){
+    return new KPromise((res, rej)=>{
+      rej(val)
+    })
+  }
+
+  static all(arr){
+    if(!Array.isArray(arr)){
+      throw new TypeError('all的参数应该是数组');
+    }
+    let len = arr.length;
+    var i = 0;
+    var arrVal = [];
+    return new KPromise((res, rej)=>{
+        arr.forEach((item)=>{
+          item
+          .then((val)=>{
+            i++;
+            arrVal.push(val);
+            if(i == arr.length){
+              res(arrVal)
+            }
+          })
+          .catch((val)=>{
+            rej(val)
+          })
+        })
+    })
+  }
+
+  static race(arr){
+    if(!Array.isArray(arr)){
+      throw new TypeError('race的参数应该是数组');
+    }
+    return new KPromise((res, rej)=>{
+      arr.forEach((item)=>{
+        item
+        .then((val)=>{
+            res(val)
+        })
+        .catch((val)=>{
+          rej(val)
+        })
+      })
+    })
+  }
+
+
+  constructor(handler){
+    if(typeof handler !== "function"){
+      throw new TypeError('参数不能为空且必须是函数');
+    }
+    this.status = KPromise.pending;
+    this.value = null;
+    this.resAll = [];
+    this.rejAll = [];
+    this.finallyAll = [];
+
+    // 使用 class 创建的对象,在没有通过 new 关键字去实例化的之前,它的内部方法this是无绑定状态的
+    handler(this._resolved.bind(this), this._rejected.bind(this));
+  }
+  _resolved(val){
+    /*
+      message会把事件当作异步中的微任务处理，异步有宏任务和微任务，微任务的优先程度小于宏任务
+      这里微任务， setTimeout是宏任务
+      异步操作会在同步操作都完成之后才执行，同步=>异步(微)=>异步(宏)
+      这里是为了把then里面的函数都push到resAll里面之后在执行res(),否则then里面的函数不会执行
+    */
+    // 发送消息
+    window.postMessage('');
+    // 监听消息反馈
+    window.addEventListener('message',()=>{
+      // 预防状态的再次改变
+      if(this.status != "pending") return;
+      this.status = KPromise.resolved;
+      this.value = val;
+      var fn = null;
+      while(fn = this.resAll.shift()){
+        // 执行then里面的函数
+        // console.log(fn)
+        fn(this.value);
+      }
+      this._finally(this.value)
+    })
+  }
+
+  _rejected(val){
+    window.addEventListener('message', ()=>{
+      // 预防状态的再次改变
+      if(this.status != KPromise.pending) return;
+      this.status = KPromise.rejected;
+      this.value = val;
+      var fn = null;
+      while(fn = this.rejAll.shift()){
+        fn(this.value)
+      }
+      this._finally(this.value)
+    })
+    window.postMessage('');
+  }
+
+  then(resHandler, rejHandler){
+    return new KPromise((res, rej)=>{
+      // 声明这个函数是为了链式调用
+      function newRes(val){
+        if(typeof resHandler == 'function'){
+          // 执行then里面的函数并返回值
+          var back = resHandler(val);
+          // push完之后，resAll就是[resHandler, res]
+          // resHandler 就是then里面的函数
+          // resAll里面的res执行，就会带动他自己收集的then函数执行
+          // resHandler执行完之后会返回一个新的Promise对象
+          // 而res的执行就是新一轮的promise执行
+  
+          // 判断resHandler返回是否是promise
+          if(back instanceof KPromise){
+            back.then(res, rej)
+          }else{
+            res(back)
+          }
+        }else{
+          res(val)
+        }
+      }
+      function newRej(val){
+        if(typeof rejHandler == 'function'){
+          var back = rejHandler(val);
+          if(back instanceof KPromise){
+            back.then(res, rej)
+          }else{
+            rej(back);
+          }
+        }else{
+          rej(val)
+        }
+      }
+      // 里面的函数由上面fn触发
+      this.resAll.push(newRes)
+      this.rejAll.push(newRej)
+    })
+  }
+
+  catch(rej){
+    // catch是处理错误的，所以直接调用then的rej
+    // 执行这里的时候res的值有可能是undefined，所以上面需要做处理
+    return this.then(undefined, rej)
+  }
+
+  _finally(val){
+    window.addEventListener('message', ()=>{
+      this.value = val;
+      var fn = null;
+      while(fn = this.finallyAll.shift()){
+        fn(this.value)
+      }
+    })
+    window.postMessage('');
+  }
+
+  finally(fina){
+    return new KPromise((res, rej)=>{
+      function fn(val){
+        let f = fina(val);
+        res(f)
+      }
+      this.finallyAll.push(fn);
+    })
+  }
+  
+}

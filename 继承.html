@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    function Person(name, age) {
+      this.name1 = name
+      this.age = age
+    }
+    Person.prototype.sayName = function() {
+      console.log(`my name is ${this.name1}`);
+    }
+
+    function Son(name, age, sex, job) {
+      Person.call(this, name, age)
+      this.sex = sex
+      this.job = job
+    }
+    Son.prototype.findJob = function() {
+      console.log(`I'm find job, it's ${this.job}`);
+    }
+
+    function Fn(){}
+    Fn.prototype = Person.prototype
+
+    Son.prototype = new Fn()
+    Son.prototype.constructor = Person
+
+    var son = new Son('kai', 28, 'boy', 'web')
+  </script>
+</body>
+</html>

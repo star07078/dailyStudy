@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    function deepCopy(obj, newObj) {
+      newObj = newObj || {}
+      let isArr = Object.prototype.toString
+      
+      for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) {
+          if (typeof obj[attr] == 'object') {
+            if (isArr.call(obj[attr] == '[object Array]')) {
+              newObj[attr] = []
+            } else {
+              newObj[attr] = {}
+            }
+            deepCopy(obj[attr], newObj[attr])
+          } else {
+            newObj[attr] = obj[attr]
+          }
+        }
+      }
+
+      return newObj
+    }
+
+    let obj = {
+      a: 1,
+      b: 2,
+      c: [1, 2, {d: 5}]
+    }
+    let o1 = obj
+
+    function fn(a,b) {
+
+      Object.observe(a, function(a,b,c) {
+        console.log(a,b,c,'-----');
+      })
+    }
+    fn(obj)
+  </script>
+</body>
+</html>
