@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    var a = 10
+    var arr = [
+      // 'u',
+      // {a: 1},
+      // {a: 2}
+      1,2,3,4
+    ]
+    arr.__proto__.u = 10
+    // arr.map(function(item) {
+    //   console.log(item.a);
+    // }, window)
+    // Array.prototype.setMap = function() {
+    //   console.log(this);
+    // }
+    // for (var i of arr) {
+    //   console.log(i);
+    // }
+    // arr.setMap()
+    // function fn() {
+    //   for(var i=0; i<arr.length; i++) {
+    //     console.log(arr[i], '=');
+    //     if (arr[i] > 1) {
+    //       return true
+    //     }
+    //   }
+    //   return false
+    // }
+    
+    // function api() {
+    //   return 
+    // }
+
+    function* fn() {
+      for (var i=0; i<5; i++) {
+        yield console.log(i)
+      }
+    }
+
+    a = fn()
+    // a.next()
+    a.next()
+    // a.next()
+    a.next()
+    console.log(a.next());
+
+  </script>
+</body>
+</html>
