@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // 概念： 不会引入外部的环境, 相同输入得到相同输出
+    var xs = [1,2,3,4,5];
+    var immutableState = Object.freeze(xs);
+
+    function fn() {
+      console.log(JSON.stringify(arguments));
+    }
+
+    fn(1,1)
+
+  </script>
+</body>
+
+</html>

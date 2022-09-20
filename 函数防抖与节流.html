@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // 防抖
+    // 2.防抖: n秒后执行该事件，若在n秒后被重复触发，则重新计时
+    function debounce(cb, time) {
+      let timer
+      return function () {
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+          cd.apply(this)
+        }, time)
+      }
+    }
+
+    // 节流
+    // 1.节流：n秒内只运行一次，若在n 秒后重复执行，只有一次执行
+    function throttled(fn, delay) {
+      let timer = null
+      let starttime = Date.now()
+      return function (...args) {
+        let curtime = Date.now()    //当前的时间
+        let remaining = delay - (curtime - starttime)  // 从上一次到现在剩下多少时间
+        clearTimeout(timer)
+        if (remaining < 0) {
+          fn.apply(this, args)
+          starttime = Date.now()
+        } else {
+          timer = setTimeout(function() {
+            fn.apply(this, args)
+          }, remaining)
+        }
+      }
+    }
+    let n = 0
+    function fn (a) {
+      console.log(++n, a);
+    }
+
+    let f = throttled(fn, 3000)
+    f(6)
+    // setInterval(() => {
+    //   f()
+    // },1000)
+
+
+  </script>
+</body>
+
+</html>

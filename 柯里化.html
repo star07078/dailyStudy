@@ -51,14 +51,14 @@
       }
     }
 
-    let replace1 = curry((a, b, c) => {
-      return a + b + c
+    let replace1 = curry((a, b, str) => {
+      return str.replace(a, b)
     })
 
-    let a = replace1('aa')
-    let b = a('bb', 'c')
-    // let c = b('cc')
-    console.log(b);
+    let a = replace1('a')
+    let b = a('b')
+    let c = b('kai')
+    console.log(c);
 
 
   </script>
